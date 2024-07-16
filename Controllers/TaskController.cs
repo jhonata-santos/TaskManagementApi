@@ -20,19 +20,19 @@ public class TaskController : ControllerBase
         _mapper = mapper;
     }
 
+    [HttpGet]
+    public List<ReadTaskDto> GetAllTasks([FromQuery] int skip = 0, int take = 50)
+    {
+        return _mapper.Map<List<ReadTaskDto>>(_taskContext.Tasks.Skip(skip).Take(take));
+    }
+
     [HttpPost]
     public IActionResult AddTask([FromBody] CreateTaskDto taskDto)
     {
         TaskModel task = _mapper.Map<TaskModel>(taskDto);
         _taskContext.Tasks.Add(task);
         _taskContext.SaveChanges();
-        return CreatedAtAction(nameof(GetTaskId), new { id = task.Id }, task);
-    }
-
-    [HttpGet]
-    public IEnumerable<ReadTaskDto> GetAllTasks([FromQuery] int skip = 0, int take = 50)
-    {
-        return _mapper.Map<List<ReadTaskDto>>(_taskContext.Tasks.Skip(skip).Take(take));
+        return CreatedAtAction(nameof(GetTask), new { id = task.Id }, task);
     }
 
     [HttpGet("{id}")]
@@ -75,13 +75,14 @@ public class TaskController : ControllerBase
     [HttpDelete]
     public IActionResult DeleteAllTasks()
     {
-        var tasks = GetAllTasks();
-        _taskContext.Tasks.RemoveRange(tasks);
+        List<ReadTaskDto> tasksDto = GetAllTasks();
+        var tasks = _mapper.Map<List<TaskModel>>(tasksDto);
+        _taskContext.Tasks.RemoveRange(tasks); 
         _taskContext.SaveChanges();
         return NoContent();
     }
 
-    [HttpDelete]
+    [HttpDelete("{id}")]
     public IActionResult DeleteTask(int id)
     {
         var task = _taskContext.Tasks.FirstOrDefault(task => task.Id == id);

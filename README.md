@@ -7,5 +7,5 @@ API to create, read, update and delete tasks. Users can categorize tasks, set de
 
 ## Frameworks
 - Entity Framework
-- Pomole Entity Framework
+- Pomelo Entity Framework
 - Automaper
